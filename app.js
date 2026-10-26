@@ -491,7 +491,7 @@
     startup.addEventListener("animationend", onAnimationEnd);
     startup.hidden = false;
     // Fallback also releases the UI if this TV misses the animationend event.
-    timer = setTimeout(finish, 1400);
+    timer = setTimeout(finish, 1600);
   }
 
   function moveFocus(direction) {

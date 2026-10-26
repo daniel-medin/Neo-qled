@@ -33,7 +33,7 @@ Kör i projektmappen i PowerShell:
 python build.py
 $tvIp = 'TV_IP' # Ersätt med TV:ns lokala IP-adress
 $cli = Join-Path $env:LOCALAPPDATA 'NeoQled\tools\Apps2Samsung-cli-v3.0.0-beta\apps2samsung-cli.exe'
-$wgt = (Resolve-Path 'dist\MedinsMediacenter-0.6.0.wgt').Path
+$wgt = (Resolve-Path 'dist\MedinsMediacenter-0.6.1.wgt').Path
 & $cli install $wgt --tv $tvIp --launch --json
 ```
 
@@ -49,7 +49,7 @@ Byt `.wgt`-filens versionsnummer efter att versionen höjts i `config.xml`. CLI 
 
 Sedan 0.4.3 är datum och tid valfria, även var för sig. Befintliga poster kan läsas utan migrering. HDMI-ytan stängs bara om Mediacenter själv har öppnat den; vanliga appstarter ska inte ändra TV-bildytan. Appstartens reserv-ID:n prövas bara vid ett uttryckligt fel från Tizen, aldrig av en timer efter att appen återupptas.
 
-Version 0.6.0 lägger till en kort MM-startanimation i HTML/CSS. Den visas vid dokumentets första start, går att hoppa över med valfri knapp och avslutas vid bakgrundsläge. Den startas inte av visibilitychange eller fokus när appen återupptas. En timer på 1,4 sekunder döljer ytan även om TV:n skulle missa CSS-händelsen animationend. Inga nya paketfiler eller behörigheter behövs.
+Version 0.6.0 lade till en kort MM-startanimation i HTML/CSS. I 0.6.1 åker de fyra rutorna in mot mitten, smälter ihop till en ruta och avslutas med en pop-animation på spelknappen. Den visas vid dokumentets första start, går att hoppa över med valfri knapp och avslutas vid bakgrundsläge. Den startas inte av visibilitychange eller fokus när appen återupptas. En timer på 1,6 sekunder döljer ytan även om TV:n skulle missa CSS-händelsen animationend. Inga nya paketfiler eller behörigheter behövs.
 
 Verifierat i 0.6.0 på TV:n: introytan var synlig tidigt efter omladdning och dold efter avslutad animation; den sparade programlistan fanns kvar. Webbläsarkontrollen verifierade även hopp över med fjärrkontrollknapp, återgång utan ny animation och minskad rörelse. `animation-preview.html` ger en separat datorförhandsvisning med Spela igen-knapp och ingår inte i TV-paketet.
 

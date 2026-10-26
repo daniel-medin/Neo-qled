@@ -2,7 +2,7 @@
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
         id="https://neo-qled.local/home"
-        version="0.6.0"
+        version="0.6.1"
         viewmodes="maximized"
         width="1920"
         height="1080">

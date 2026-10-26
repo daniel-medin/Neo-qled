@@ -18,7 +18,7 @@ Knappen **Vad vi tittar på** öppnar ett formulär för programnamn, app och va
 
 ## Bygg och installera
 
-`python build.py` skapar `dist/MedinsMediacenter-0.6.0.wgt`. Paketet är osignerat tills installationsverktyget signerar det. Se [CONNECTIONS.md](CONNECTIONS.md) för TV-anslutning, certifikatplats, installationskommando och hur en uppdatering görs.
+`python build.py` skapar `dist/MedinsMediacenter-0.6.1.wgt`. Paketet är osignerat tills installationsverktyget signerar det. Se [CONNECTIONS.md](CONNECTIONS.md) för TV-anslutning, certifikatplats, installationskommando och hur en uppdatering görs.
 
 Den lokala filen `CONNECTIONS.local.md` sparar Daniels faktiska nätverksadresser och TV-ID. Den och genererade installationspaket är undantagna från Git.
 
@@ -26,7 +26,7 @@ Förhandsgranska genom att öppna `index.html` i en webbläsare. Då visas exemp
 
 ## Startanimation
 
-Vid en ny appstart glider MM-loggans fyra rutor ihop, bokstäverna tänds och spelknappen pulserar. Animationen tar ungefär en sekund och kan hoppas över med valfri fjärrkontrollknapp. Den avslutas om appen lämnas och spelas inte upp igen när samma appsession återupptas. Inställningen för minskad rörelse respekteras. Ikonen i Samsungs startmeny är fortfarande en statisk bild.
+Vid en ny appstart åker MM-loggans fyra rutor in mot mitten och smälter ihop till en enda ruta med spelknapp, som gör en pop-animation. Animationen tar ungefär 1,3 sekunder och kan hoppas över med valfri fjärrkontrollknapp. Den avslutas om appen lämnas och spelas inte upp igen när samma appsession återupptas. Inställningen för minskad rörelse respekteras. Ikonen i Samsungs startmeny är fortfarande en statisk bild.
 
 Öppna [animation-preview.html](animation-preview.html) på datorn för att se animationen. Knappen **Spela igen** startar om förhandsvisningen. Sidan ingår inte i TV-paketet.
 
