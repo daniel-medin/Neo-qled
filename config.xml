@@ -2,14 +2,14 @@
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
         id="https://neo-qled.local/home"
-        version="0.4.0"
+        version="0.4.4"
         viewmodes="maximized"
         width="1920"
         height="1080">
   <tizen:application id="NQLEDHOME1.Home" package="NQLEDHOME1" required_version="6.0"/>
   <content src="index.html"/>
   <feature name="http://tizen.org/feature/screen.size.all"/>
-  <icon src="icon.png"/>
+  <icon src="launcher-mm.png"/>
   <name>Medins Mediacenter</name>
   <description>Dina TV-appar och ingångar på en ren startskärm.</description>
   <tizen:privilege name="http://tizen.org/privilege/application.info"/>

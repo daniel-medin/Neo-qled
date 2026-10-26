@@ -66,6 +66,7 @@ def main() -> None:
                  fill="#F4FCFF", width=width)
 
     image.resize((1024, 1024), Image.Resampling.LANCZOS).save(ROOT / "icon.png")
+    image.resize((117, 117), Image.Resampling.LANCZOS).save(ROOT / "launcher-mm.png")
 
 
 if __name__ == "__main__":

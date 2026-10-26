@@ -3,7 +3,7 @@
   "use strict";
 
   var APPS = [
-    { key: "svt", label: "SVT Play", logo: "svt-play", glow: "#3d9653", names: ["svt play", "svt"], launchIds: ["5exPmCT0nz.svtplay", "3201612011287"] },
+    { key: "svt", label: "SVT Play", logo: "svt-play", glow: "#3d9653", names: ["svt play", "svt"] },
     { key: "netflix", label: "Netflix", logo: "netflix", glow: "#b52539", names: ["netflix"] },
     { key: "tv4", label: "TV4 Play", logo: "tv4-play", glow: "#a82b3e", names: ["tv4 play", "tv4"] },
     { key: "max", label: "HBO Max", logo: "hbo-max", glow: "#6d58b3", names: ["hbo max", "max"] },
@@ -22,6 +22,7 @@
   var installed = [];
   var availableSources = [];
   var sourceOpen = false;
+  var sourceNeedsReset = false;
   var bound = readBindings();
   var watching = readWatching();
   var focusIndex = 0;
@@ -154,10 +155,19 @@
   }
 
   function formatSchedule(row) {
-    var parts = row.date.split("-");
-    var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-    if (isNaN(date.getTime())) { return row.date + " · " + row.time; }
-    return date.toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" }) + " · " + row.time;
+    var label = "";
+    if (row.date) {
+      var parts = row.date.split("-");
+      var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      label = isNaN(date.getTime()) ? row.date : date.toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" });
+    }
+    return [label, row.time].filter(Boolean).join(" · ");
+  }
+
+  function compareSchedule(a, b) {
+    var first = (a.date || "9999-12-31") + (a.time || "23:59");
+    var second = (b.date || "9999-12-31") + (b.time || "23:59");
+    return first.localeCompare(second) || a.title.localeCompare(b.title, "sv");
   }
 
   function renderWatching() {
@@ -167,8 +177,8 @@
     pausedList.innerHTML = "";
     var active = watching.filter(function (row) { return !row.paused; });
     var paused = watching.filter(function (row) { return !!row.paused; });
-    active.sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
-    paused.sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
+    active.sort(compareSchedule);
+    paused.sort(compareSchedule);
     function addRows(rows, list) {
       rows.forEach(function (row) {
         var definition = APPS.find(function (app) { return app.key === row.appKey; });
@@ -185,7 +195,7 @@
         var title = document.createElement("strong");
         title.textContent = row.title;
         var meta = document.createElement("small");
-        meta.textContent = definition.label + " · " + formatSchedule(row);
+        meta.textContent = [definition.label, formatSchedule(row)].filter(Boolean).join(" · ");
         copy.appendChild(title);
         copy.appendChild(meta);
         open.appendChild(copy);
@@ -255,12 +265,14 @@
   }
 
   function validSchedule(date, time) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) { return false; }
-    var parts = date.split("-").map(Number);
-    var hours = time.split(":").map(Number);
-    var value = new Date(parts[0], parts[1] - 1, parts[2], hours[0], hours[1]);
-    return value.getFullYear() === parts[0] && value.getMonth() === parts[1] - 1 &&
-      value.getDate() === parts[2] && value.getHours() === hours[0] && value.getMinutes() === hours[1];
+    if (date) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { return false; }
+      var parts = date.split("-").map(Number);
+      var value = new Date(parts[0], parts[1] - 1, parts[2]);
+      if (value.getFullYear() !== parts[0] || value.getMonth() !== parts[1] - 1 || value.getDate() !== parts[2]) { return false; }
+    }
+    if (time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) { return false; }
+    return true;
   }
 
   function focusCard(index) {
@@ -275,61 +287,19 @@
     var app = findInstalled(definition);
     if (!app) { openPicker(index); return; }
     if (!isTizen) { showToast("Förhandsvisning: " + definition.label); return; }
-    if (definition.key === "svt") {
-      try {
-        tizen.application.launch(app.id, function () {
-          setTimeout(function () {
-            if (!document.hidden) { showToast("SVT Play öppnades inte från Mediacenter."); }
-          }, 2200);
-        }, function (error) {
-          showToast("Kunde inte öppna SVT Play: " + (error.message || error.name));
-        });
-      } catch (error) {
-        showToast("Kunde inte öppna SVT Play: " + (error.message || error.name));
-      }
-      return;
-    }
     var ids = (definition.launchIds || []).slice();
     if (ids.indexOf(app.id) < 0) { ids.push(app.id); }
     var position = 0;
     var lastError = "TV:n stannade i startvyn";
-    function finishFailure() {
-      if (definition.key === "svt" && tizen.ApplicationControl) {
-        tryAppControl(0);
-      } else {
-        showToast("Kunde inte öppna " + definition.label + ": " + lastError);
-      }
-    }
-    function tryAppControl(index) {
-      if (index >= ids.length) {
-        showToast("TV:n kunde inte visa SVT Play från startvyn.");
-        return;
-      }
-      try {
-        var control = new tizen.ApplicationControl("http://tizen.org/appcontrol/operation/view");
-        tizen.application.launchAppControl(control, ids[index], function () {
-          setTimeout(function () { if (!document.hidden) { tryAppControl(index + 1); } }, 1800);
-        }, function () { tryAppControl(index + 1); });
-      } catch (error) {
-        tryAppControl(index + 1);
-      }
-    }
     function tryLaunch() {
       if (position >= ids.length) {
-        finishFailure();
+        showToast("Kunde inte öppna " + definition.label + ": " + lastError);
         return;
       }
       var id = ids[position];
       position += 1;
       try {
-        tizen.application.launch(id, function () {
-          setTimeout(function () {
-            if (!document.hidden) {
-              if (position < ids.length) { tryLaunch(); }
-              else if (definition.launchIds) { finishFailure(); }
-            }
-          }, 1800);
-        }, function (error) {
+        tizen.application.launch(id, function () {}, function (error) {
           lastError = error.message || error.name;
           tryLaunch();
         });
@@ -354,7 +324,7 @@
     try {
       tizen.tvwindow.setSource(source, function () {
         try {
-          tizen.tvwindow.show(function () { sourceOpen = true; }, function (error) {
+          tizen.tvwindow.show(function () { sourceOpen = true; sourceNeedsReset = true; }, function (error) {
             showToast("Kunde inte visa " + definition.label + ": " + error.message);
           }, ["0%", "0%", "100%", "100%"], "MAIN", "FRONT");
         } catch (error) {
@@ -369,9 +339,12 @@
   }
 
   function closeSource(silent, force) {
-    if ((!sourceOpen && !force) || !isTizen || !tizen.tvwindow) { return; }
+    if ((!sourceOpen && !(force && sourceNeedsReset)) || !isTizen || !tizen.tvwindow) { return; }
     try {
-      tizen.tvwindow.hide(function () { sourceOpen = false; }, function (error) {
+      tizen.tvwindow.hide(function () {
+        sourceOpen = false;
+        if (!document.hidden) { sourceNeedsReset = false; }
+      }, function (error) {
         if (!silent) { showToast("Kunde inte stänga ingången: " + error.message); }
       });
     } catch (error) {
@@ -543,7 +516,7 @@
       return;
     }
     if (!validSchedule(date, time)) {
-      document.getElementById("watch-error").textContent = "Ange datum som ÅÅÅÅ-MM-DD och tid som TT:MM.";
+      document.getElementById("watch-error").textContent = "Datum och tid är valfria. Använd ÅÅÅÅ-MM-DD respektive TT:MM när du fyller i dem.";
       return;
     }
     watching.push({ id: String(Date.now()) + "-" + Math.random().toString(36).slice(2, 7),
