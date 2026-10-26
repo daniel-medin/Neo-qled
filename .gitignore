@@ -1,0 +1,14 @@
+# Generated TV packages and Python caches
+dist/
+*.wgt
+__pycache__/
+*.pyc
+
+# This TV's connection details and signing material stay on this computer
+CONNECTIONS.local.md
+tv-pairing.json
+*.p12
+*.pfx
+*.key
+.env
+.env.*

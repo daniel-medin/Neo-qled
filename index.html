@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medins Mediacenter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div>
+        <p class="eyebrow">MEDINS MEDIACENTER</p>
+        <h1>Vad vill du titta på?</h1>
+      </div>
+      <div class="header-right">
+        <button type="button" class="add-watch" id="add-watch">+ Vad vi tittar på</button>
+        <time id="clock" aria-label="Klockan"></time>
+      </div>
+    </header>
+
+    <section class="app-grid" id="app-grid" aria-label="Dina appar"></section>
+
+    <section class="sources" id="source-section" aria-label="Ingångar" hidden>
+      <h2>Ingångar</h2>
+      <div class="source-grid" id="source-grid"></div>
+    </section>
+
+    <section class="watch-section" aria-label="Vi tittar på">
+      <h2>Vi tittar på:</h2>
+      <div class="watch-list" id="watch-list"></div>
+    </section>
+
+    <section class="watch-section paused-section" aria-label="Pausade program">
+      <h2>Pausade</h2>
+      <div class="watch-list" id="paused-list"></div>
+    </section>
+  </main>
+
+  <div class="dialog-backdrop" id="watch-backdrop" hidden>
+    <form class="dialog watch-dialog" id="watch-form" aria-label="Lägg till program">
+      <p class="eyebrow">VI TITTAR PÅ</p>
+      <h2>Lägg till program</h2>
+      <label for="watch-title">Program</label>
+      <input id="watch-title" name="title" type="text" maxlength="80" placeholder="Till exempel Bäst i test" required>
+      <label for="watch-app">App</label>
+      <select id="watch-app" name="app" required></select>
+      <div class="watch-fields">
+        <div><label for="watch-date">Datum</label><input id="watch-date" name="date" type="text" inputmode="numeric" placeholder="ÅÅÅÅ-MM-DD" maxlength="10" required></div>
+        <div><label for="watch-time">Tid</label><input id="watch-time" name="time" type="text" inputmode="numeric" placeholder="TT:MM" maxlength="5" required></div>
+      </div>
+      <p class="form-error" id="watch-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" id="watch-cancel">Avbryt</button>
+        <button type="submit" class="primary">Spara</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="dialog-backdrop" id="picker-backdrop" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+      <div class="dialog-heading">
+        <p class="eyebrow">VÄLJ APP</p>
+        <h2 id="picker-title">Välj installerad app</h2>
+        <p>Välj rätt app från TV:ns lista. Valet sparas på TV:n.</p>
+      </div>
+      <div class="picker-list" id="picker-list"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

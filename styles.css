@@ -1,0 +1,146 @@
+:root {
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #10131d;
+  color: #f8f9fc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { width: 100%; min-height: 100%; margin: 0; }
+html { overflow-y: auto; }
+
+body {
+  background: radial-gradient(circle at 86% 4%, #252a3d 0, transparent 34%), #10131d;
+}
+
+.shell {
+  width: 100%;
+  min-height: 100vh;
+  padding: 42px 86px 68px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 28px; }
+.header-right { display: flex; align-items: center; gap: 32px; }
+.add-watch { border: 2px solid #7897d4; border-radius: 18px; padding: 16px 22px; background: #243858; color: #fff; font: inherit; font-size: 24px; font-weight: 700; cursor: pointer; }
+.add-watch:focus { outline: 4px solid #acc0fc; }
+.eyebrow { margin: 0 0 12px; font-size: 20px; font-weight: 700; letter-spacing: 0.22em; color: #9aabc7; }
+h1 { font-size: 59px; line-height: 1.12; letter-spacing: -0.035em; margin: 0; font-weight: 700; }
+#clock { color: #b8c3d4; font-size: 39px; font-weight: 500; }
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, 160px);
+  gap: 18px;
+  flex: none;
+}
+
+.app-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid #414a5d;
+  border-radius: 28px;
+  background: #1b2030;
+  color: #fff;
+  padding: 16px 26px;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.app-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, var(--glow), transparent 72%);
+  opacity: .24;
+}
+
+.app-card:focus { outline: none; transform: scale(1.035); border-color: #f7f9ff; box-shadow: 0 0 0 6px #a7bcfa, 0 18px 38px #0007; z-index: 2; }
+.app-mark { position: relative; display: flex; align-items: center; gap: 20px; font-size: 43px; font-weight: 800; letter-spacing: -.05em; white-space: nowrap; }
+.app-logo { display: block; width: 92px; height: 92px; flex: 0 0 92px; object-fit: contain; }
+.app-card[data-app="max"] .app-logo { width: 132px; flex-basis: 132px; }
+.app-card[data-missing="true"]::after { content: "Koppla app"; position: absolute; right: 21px; bottom: 17px; color: #d7dff0; font-size: 18px; }
+.app-card[data-missing="true"] .app-mark { opacity: .7; }
+
+.sources { margin-top: 22px; }
+.sources[hidden] { display: none; }
+.sources h2 { margin: 0 0 15px; color: #c7d0df; font-size: 27px; font-weight: 600; }
+.source-grid { display: flex; gap: 20px; }
+.source-card { flex: 1; max-width: 420px; height: 104px; }
+.source-card .app-mark { font-size: 33px; }
+.source-card .app-logo { width: 68px; height: 68px; flex-basis: 68px; }
+.source-copy { display: flex; flex-direction: column; gap: 5px; text-align: left; }
+.source-copy small { color: #a9b8d2; font-size: 19px; font-weight: 600; letter-spacing: .03em; }
+
+.watch-section { margin-top: 28px; }
+.watch-section h2 { margin: 0 0 14px; color: #dce5f5; font-size: 30px; }
+.watch-list { display: flex; flex-direction: column; gap: 10px; color: #aab7cb; font-size: 22px; }
+.watch-item { display: flex; align-items: stretch; gap: 9px; max-width: 1090px; min-height: 92px; }
+.watch-open, .watch-action { border: 2px solid #48546b; border-radius: 18px; background: #20283a; color: #fff; font: inherit; cursor: pointer; }
+.watch-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 19px; text-align: left; padding: 10px 20px; }
+.watch-open .app-logo { width: 62px; height: 62px; flex-basis: 62px; }
+.watch-copy { display: flex; flex-direction: column; min-width: 0; gap: 5px; }
+.watch-copy strong { font-size: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.watch-copy small { color: #aebbd0; font-size: 19px; }
+.watch-action { flex: 0 0 76px; font-size: 36px; font-weight: 700; }
+.watch-remove { color: #ff9aa7; }
+.watch-open:focus, .watch-action:focus { outline: 4px solid #acc0fc; background: #2c3c58; }
+.paused-section { margin-top: 30px; }
+.paused-section .watch-item { opacity: .7; }
+
+.dialog-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: #05080ed9; }
+.dialog-backdrop[hidden] { display: none; }
+.dialog { width: min(900px, 85vw); max-height: 88vh; display: flex; flex-direction: column; padding: 38px; background: #222a3a; border: 2px solid #72809a; border-radius: 26px; box-shadow: 0 32px 90px #000c; }
+.dialog-heading h2 { margin: 0 0 8px; font-size: 42px; }
+.dialog-heading p:last-child { margin: 0 0 24px; color: #c7d0df; font-size: 21px; }
+.watch-dialog { gap: 9px; }
+.watch-dialog h2 { margin: 0 0 9px; font-size: 42px; }
+.watch-dialog label { font-size: 22px; font-weight: 700; }
+.watch-dialog input, .watch-dialog select { width: 100%; border: 2px solid #75849b; border-radius: 11px; padding: 13px 17px; background: #151c2b; color: #fff; font: inherit; font-size: 26px; }
+.watch-dialog input:focus, .watch-dialog select:focus { outline: 4px solid #acc0fc; }
+.watch-fields { display: flex; gap: 18px; }
+.watch-fields > div { flex: 1; display: flex; flex-direction: column; gap: 9px; }
+.form-error { min-height: 26px; margin: 2px 0; color: #ffadb5; font-size: 20px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 14px; }
+.dialog-actions button { border: 2px solid #8290a8; border-radius: 12px; padding: 12px 24px; background: #38445a; color: #fff; font: inherit; font-size: 23px; cursor: pointer; }
+.dialog-actions button.primary { border-color: #87a8ef; background: #385f9f; }
+.dialog-actions button:focus { outline: 4px solid #acc0fc; }
+.picker-list { overflow: auto; display: flex; flex-direction: column; gap: 7px; }
+.picker-item { background: #323d51; border: 2px solid transparent; border-radius: 12px; color: white; text-align: left; padding: 16px 20px; font: inherit; font-size: 26px; }
+.picker-item:focus { outline: none; border-color: #fff; background: #4a5b76; }
+.dialog-help { padding-top: 22px; color: #c7d0df; font-size: 19px; }
+.toast { position: fixed; bottom: 42px; left: 50%; transform: translateX(-50%); background: #eef2ff; color: #171d2a; padding: 15px 26px; border-radius: 12px; font-size: 23px; font-weight: 600; opacity: 0; transition: opacity 120ms ease; pointer-events: none; }
+.toast.visible { opacity: 1; }
+
+@media (max-width: 1000px) {
+  .shell { padding: 32px 34px 24px; }
+  .header { margin-bottom: 24px; }
+  h1 { font-size: 36px; }
+  #clock { font-size: 25px; }
+  .app-grid { gap: 12px; }
+  .app-card { border-radius: 17px; }
+  .app-mark { flex-direction: column; gap: 4px; font-size: 19px; }
+  .app-logo { width: 42px; height: 42px; flex-basis: 42px; }
+  .sources { margin-top: 15px; }
+  .sources h2 { font-size: 18px; margin-bottom: 8px; }
+  .source-grid { gap: 10px; }
+  .source-card { height: 72px; }
+  .source-card .app-mark { flex-direction: row; font-size: 18px; }
+  .source-card .app-logo { width: 35px; height: 35px; flex-basis: 35px; }
+  .source-copy small { font-size: 13px; }
+  .header-right { gap: 9px; }
+  .add-watch { font-size: 15px; padding: 8px 10px; }
+  .app-grid { grid-template-rows: repeat(3, 125px); }
+  .watch-section h2 { font-size: 22px; }
+  .watch-item { min-height: 72px; }
+  .watch-copy strong { font-size: 19px; }
+  .watch-copy small { font-size: 14px; }
+  .watch-action { flex-basis: 48px; font-size: 23px; }
+}
