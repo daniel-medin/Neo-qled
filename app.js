@@ -464,6 +464,36 @@
     clock.textContent = new Date().toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
   }
 
+  function showStartupAnimation() {
+    var startup = document.getElementById("startup");
+    if (!startup || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) { return; }
+    var timer;
+    function finish() {
+      startup.hidden = true;
+      clearTimeout(timer);
+      document.removeEventListener("keydown", skip, true);
+      document.removeEventListener("visibilitychange", onVisibility);
+      startup.removeEventListener("pointerdown", skip);
+      startup.removeEventListener("animationend", onAnimationEnd);
+    }
+    function skip(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      finish();
+    }
+    function onVisibility() { if (document.hidden) { finish(); } }
+    function onAnimationEnd(event) {
+      if (event.target === startup && event.animationName === "startup-exit") { finish(); }
+    }
+    document.addEventListener("keydown", skip, true);
+    document.addEventListener("visibilitychange", onVisibility);
+    startup.addEventListener("pointerdown", skip);
+    startup.addEventListener("animationend", onAnimationEnd);
+    startup.hidden = false;
+    // Fallback also releases the UI if this TV misses the animationend event.
+    timer = setTimeout(finish, 1400);
+  }
+
   function moveFocus(direction) {
     var current = document.activeElement;
     var origin = current && current.getBoundingClientRect ? current.getBoundingClientRect() : null;
@@ -594,4 +624,5 @@
     installed = APPS.map(function (app) { return { id: "preview." + app.key, name: app.names[0] }; });
     render();
   }
+  showStartupAnimation();
 }());
