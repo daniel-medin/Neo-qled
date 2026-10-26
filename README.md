@@ -2,6 +2,8 @@
 
 En personlig startvy för Samsung Tizen TV med nio appar och två HDMI-ingångar. Den visar bara valen du själv vill ha, utan rekommendationer eller reklambanners. Appen är byggd som en lokal Tizen-webbapp.
 
+**Fortsätta senare:** läs [STATUS.md](STATUS.md) för senaste godkända version, verifierade funktioner och kvarvarande frågor. [CONNECTIONS.md](CONNECTIONS.md) beskriver anslutning och uppdatering. På Daniels dator finns faktiska adresser och TV-ID i den privata `CONNECTIONS.local.md`. [AGENTS.md](AGENTS.md) leder nästa kodsession till dessa dokument.
+
 ![Förhandsvisning](preview.png)
 
 ## Rutor

@@ -2,6 +2,8 @@
 
 Dokumenterat 26 oktober 2026 för att kunna uppdatera Medins Mediacenter senare. Den här publika guiden använder platshållare för lokala adresser och enhets-ID. Datorns `CONNECTIONS.local.md` innehåller uppgifterna för Daniels TV och är undantagen från Git.
 
+Läs [STATUS.md](STATUS.md) först för aktuell överlämning. Senast avlästa installerade appversion är **0.6.1**. Denna fil innehåller även äldre försök; avsnittet om SVT börjar med den fungerande lösningen.
+
 ## Enheter och portar
 
 | Del | Värde |
