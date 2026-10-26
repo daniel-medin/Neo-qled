@@ -6,7 +6,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 ROOT = Path(__file__).resolve().parent
-FILES = ("config.xml", "index.html", "styles.css", "app.js", "launcher-mm.png")
+FILES = ("config.xml", "index.html", "styles.css", "app.js", "launcher-mm.png", "THIRD_PARTY_NOTICES.md")
 
 
 def main() -> None:

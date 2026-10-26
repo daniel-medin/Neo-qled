@@ -33,7 +33,7 @@ Kör i projektmappen i PowerShell:
 python build.py
 $tvIp = 'TV_IP' # Ersätt med TV:ns lokala IP-adress
 $cli = Join-Path $env:LOCALAPPDATA 'NeoQled\tools\Apps2Samsung-cli-v3.0.0-beta\apps2samsung-cli.exe'
-$wgt = (Resolve-Path 'dist\MedinsMediacenter-0.4.4.wgt').Path
+$wgt = (Resolve-Path 'dist\MedinsMediacenter-0.5.0.wgt').Path
 & $cli install $wgt --tv $tvIp --launch --json
 ```
 
@@ -42,7 +42,7 @@ Byt `.wgt`-filens versionsnummer efter att versionen höjts i `config.xml`. CLI 
 ## Beteende att kontrollera efter uppdatering
 
 1. Kontrollera att **Medins Mediacenter** och den nya MM-ikonen visas.
-2. Öppna Apple TV-appen från app-rutan och SVT Play. Apple TV fungerade i version 0.2; SVT har ännu inte fungerat från Mediacenter.
+2. Öppna Apple TV-appen från app-rutan och SVT Play. SVT-starten verifierades två gånger i version 0.5.0, med återgång till Mediacenter mellan försöken.
 3. Öppna Apple TV-box (HDMI 1) och PlayStation (HDMI 2), tryck sedan Home och öppna Mediacenter igen. Appen ska stänga HDMI-ytan när den lämnas eller återfår fokus.
 4. Starta om TV:n och kontrollera om appen finns kvar. Automatisk öppning av Mediacenter vid TV-start är fortfarande olöst.
 5. Lägg till ett program med datum och tid, pausa det, återuppta det och starta om appen. Kontrollera att listan finns kvar. Programmen sparas i TV-appens `localStorage` under nyckeln `medins-mediacenter-watching`.
@@ -51,14 +51,27 @@ Sedan 0.4.3 är datum och tid valfria, även var för sig. Befintliga poster kan
 
 ## SVT: verifierade felsökningsresultat
 
-Ingen Tillåt-ruta visades under parkopplingsförsöket enligt användarens kontroll. En godkänd parkoppling från TV-appen kan därför inte förutsättas.
+**Löst i version 0.5.0 genom HbbTV-start med appens metadata.** Mediacenter använder inget nätverksanrop, ingen lokal fjärrkontrollparkoppling och ingen dator för att starta SVT.
+
+1. Läs `tizen.application.getAppMetaData(appId)` och hitta `http://samsung.com/tv/metadata/hbbtv.link`.
+2. Skapa `ApplicationControl` med operation `http://tizen.org/appcontrol/operation/default` och tomma URI-, MIME- och kategorifält.
+3. Skicka tre `ApplicationControlData`-poster: `tizenid: [appId]`, `hbbtv: [metadataLänken]`, `deeplink: ["true"]`.
+4. Anropa `tizen.application.launchAppControl` med målet `org.tizen.hbbtv`.
+
+Denna överlämning hittades i [AeroTizens implementation](https://github.com/helalaou/AeroTizen/blob/main/launcher/js/apps.js) och verifierades på den fysiska TV:n. Klick på SVT-rutan i installerad 0.5.0 gav förgrundsappen `org.tizen.hbbtv` och en aktiv sida med titeln **SVT Play** på `https://hbbtv.play.svt.se/v2/index.xhtml#/start`. Efter Home och återöppning visades Mediacenter stabilt, och ett andra klick på SVT öppnade samma startsida. Den befintliga programlistan fanns kvar och datum/tid var fortfarande valfria.
+
+Användaren bekräftade också att SVT Play syns på TV-skärmen. Den färdiga 0.5.0-installationen körs utan Mediacenter-inspektören; SVT-starten prövades även med fjärrkontrollens OK-kommando efter normal start.
+
+`application.info` och `application.launch` räcker för den fungerande metoden. Den installerade metadata-länken används i stället för en hårdkodad SVT-adress, så samma kod hanterar andra installerade HbbTV-appar. Normala appar behåller vanlig Tizen-start.
+
+Tidigare försök och bakgrund, för att undvika att felsökningen upprepas:
 
 Testat på den fysiska TV:n 26 oktober 2026:
 
 - Installerad app: `5exPmCT0nz.svtplay`, paket `5exPmCT0nz`, version 2.0.1, butiks-ID `3201612011287`. TV4 är `wYESlsUoe4.TV4`. Apple TV har både en dummy-post och `com.samsung.tv.aria-video`; vår ruta använder det senare ID:t.
 - Användaren bekräftar att SVT öppnas normalt från Samsungs startmeny. Då är den faktiska förgrundsappen `org.tizen.hbbtv`, inte den installerade SVT-postens ID.
 - HbbTV-inspektören visar SVT:s sida `https://hbbtv.play.svt.se/v2/index.xhtml`. HbbTV-inspektören finns på TV:ns port `7014` när utvecklarläge är på. `/json` listar den aktiva sidan.
-- `tizen.application.launch` för SVT ger en success-callback men förgrundsappen blir `com.samsung.tv.csfs`. Kontroller med AppControl `main`, `default`, `view` och `eden_resume` gav ingen fungerande överlämning. Det hjälpte inte att öppna TV-bildytan först eller tillfälligt stoppa HDMI-stängningen.
+- `tizen.application.launch` för SVT ger en success-callback men förgrundsappen blir `com.samsung.tv.csfs`. AppControl `main`, `default`, `view` och `eden_resume` **utan de tre HbbTV-datafälten** gav ingen fungerande överlämning. Det hjälpte inte att öppna TV-bildytan först eller tillfälligt stoppa HDMI-stängningen.
 - `POST http://TV_IP:8001/api/v2/applications/3201612011287` från den redan parkopplade datorn startar SVT och HbbTV-sidan. Anropet slutför inte alltid HTTP-svaret trots att appen öppnas; timeout är därför inte ett säkert tecken på misslyckad start.
 - Samma POST från TV-appen till loopback eller TV:ns egen LAN-IP får HTTP 401. GET fungerar. Ingen fungerande parkoppling från TV-appen har verifierats: vanlig WebSocket fjärrstyrning får `ms.channel.timeOut`, och säker WebSocket till loopback stoppas av `ERR_CERT_AUTHORITY_INVALID`. Den öppna appkontrollkanalen ansluter men nekar start med 401.
 - Experimentella nätverksstarter från 0.4.1–0.4.2 ingår inte i 0.4.3. Lösningen ska inte betraktas som klar genom att enbart läsa Tizens success-callback eller installationsverktygets text om lyckad start.
@@ -69,7 +82,7 @@ Tizen Studio finns lokalt under `%LOCALAPPDATA%\NeoQled\tizen-studio`; `tools\sd
 
 TV:ns registrerade ikon lästes tillbaka från `ApplicationInfo.iconPath` i version 0.4.3 och var den nya MM-designen, medan användaren fortfarande såg den gamla ikonen i Smart Hub. Version 0.4.4 använder filnamnet `launcher-mm.png` och 117 × 117 pixlar, Samsungs utvecklarikonformat. Högupplöst original finns kvar som `icon.png`. Om Smart Hub behåller en tidigare bild behöver dess cache uppdateras; ändra inte app-ID bara för detta eftersom det skapar en andra app. Säkerhetskopiera programlistan före eventuell ren ominstallation.
 
-En ren ominstallation av 0.4.4 utfördes 26 oktober. Den registrerade ikonens storlek verifierades till 117 × 117 och användarens programlista återställdes exakt från den lokala säkerhetskopian. Den synliga Smart Hub-ikonen behöver bekräftas på TV-skärmen.
+En ren ominstallation av 0.4.4 utfördes 26 oktober. Den registrerade ikonens storlek verifierades till 117 × 117 och användarens programlista återställdes exakt från den lokala säkerhetskopian. Användaren bekräftade sedan att den nya ikonen syns i Smart Hub.
 
 [Samsungs förklaring av utvecklarikonen](https://developer.samsung.com/smarttv/design/smart-tv-application-design-qa.html).
 

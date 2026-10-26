@@ -282,11 +282,48 @@
     if (card) { card.focus(); }
   }
 
+  // HbbTV handoff adapted from AeroTizen; see THIRD_PARTY_NOTICES.md.
+  function findHbbtvLink(appId) {
+    if (!tizen.application.getAppMetaData) { return ""; }
+    try {
+      var metadata = tizen.application.getAppMetaData(appId);
+      for (var i = 0; metadata && i < metadata.length; i += 1) {
+        var entry = metadata[i];
+        if (entry.key === "http://samsung.com/tv/metadata/hbbtv.link" &&
+            typeof entry.value === "string" && entry.value.trim()) {
+          return entry.value.trim();
+        }
+      }
+    } catch (error) { /* Older TVs may not expose another app's metadata. */ }
+    return "";
+  }
+
+  function launchHbbtv(appId, link, label) {
+    // HbbTV shortcuts launch a shared host, not the installed shortcut itself.
+    // The host needs these named data fields; putting the URL in uri is ignored.
+    try {
+      var data = [
+        new tizen.ApplicationControlData("tizenid", [appId]),
+        new tizen.ApplicationControlData("hbbtv", [link]),
+        new tizen.ApplicationControlData("deeplink", ["true"])
+      ];
+      var control = new tizen.ApplicationControl(
+        "http://tizen.org/appcontrol/operation/default", null, null, null, data);
+      tizen.application.launchAppControl(control, "org.tizen.hbbtv", function () {}, function (error) {
+        showToast("Kunde inte öppna " + label + ": " + (error.message || error.name));
+      });
+    } catch (error) {
+      showToast("Kunde inte öppna " + label + ": " + (error.message || error.name));
+    }
+  }
+
   function activate(index) {
     var definition = APPS[index];
     var app = findInstalled(definition);
     if (!app) { openPicker(index); return; }
     if (!isTizen) { showToast("Förhandsvisning: " + definition.label); return; }
+    var hbbtvLink = findHbbtvLink(app.id);
+    if (hbbtvLink) { launchHbbtv(app.id, hbbtvLink, definition.label); return; }
     var ids = (definition.launchIds || []).slice();
     if (ids.indexOf(app.id) < 0) { ids.push(app.id); }
     var position = 0;

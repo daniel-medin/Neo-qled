@@ -10,13 +10,15 @@ SVT Play, Netflix, TV4 Play, HBO Max, Prime Video, Disney+, YouTube, Apple TV oc
 
 Appen hämtar TV:ns lista över installerade appar. Om ett namn inte matchas kan rutan kopplas manuellt till en installerad app. Valet sparas lokalt på TV:n.
 
+SVT Play öppnas via Samsungs HbbTV-motor. Mediacenter läser HbbTV-länken från den installerade appens metadata och skickar rätt startparametrar till motorn. Detta verifierades på TV:n i version 0.5.0. Metoden utgår från [AeroTizens HbbTV-start](https://github.com/helalaou/AeroTizen/blob/main/launcher/js/apps.js); licensinformation finns i [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ## Vi tittar på
 
 Knappen **Vad vi tittar på** öppnar ett formulär för programnamn, app och valfritt datum och tid. Datum och tid kan lämnas tomma var för sig. Program med datum sorteras först efter datum och tid; övriga visas därefter. Välj ett program för att öppna dess app, använd pausknappen för att flytta det till **Pausade**, eller krysset för att radera det. I Pausade kan ett program återupptas eller raderas. Listorna sparas lokalt på TV:n. En programrad öppnar appen, inte automatiskt ett visst avsnitt eller en direktsänd kanal inne i appen.
 
 ## Bygg och installera
 
-`python build.py` skapar `dist/MedinsMediacenter-0.4.4.wgt`. Paketet är osignerat tills installationsverktyget signerar det. Se [CONNECTIONS.md](CONNECTIONS.md) för TV-anslutning, certifikatplats, installationskommando och hur en uppdatering görs.
+`python build.py` skapar `dist/MedinsMediacenter-0.5.0.wgt`. Paketet är osignerat tills installationsverktyget signerar det. Se [CONNECTIONS.md](CONNECTIONS.md) för TV-anslutning, certifikatplats, installationskommando och hur en uppdatering görs.
 
 Den lokala filen `CONNECTIONS.local.md` sparar Daniels faktiska nätverksadresser och TV-ID. Den och genererade installationspaket är undantagna från Git.
 
@@ -24,7 +26,6 @@ Förhandsgranska genom att öppna `index.html` i en webbläsare. Då visas exemp
 
 ## Kända begränsningar
 
-- **SVT Play** använder HbbTV-motorn på denna TV. Ett vanligt Tizen-startanrop får ett lyckat svar, men TV:n visar Smart Hub i stället för SVT. En alternativ start via TV:ns lokala app-API fungerar från datorn men nekas med HTTP 401 från TV-appen. SVT-start från Mediacenter är därför fortfarande olöst; se felsökningsresultaten i `CONNECTIONS.md`. Startlogiken gör inga tidsstyrda omförsök när Mediacenter öppnas igen.
 - **Automatisk start vid påslagning** är inte löst. Den här TV:n visar inte inställningen *Starta senaste appen*. En installerad Tizen-app kan inte själv ersätta Samsungs systemstartvy. SmartThings-rutin som öppnar appen är en möjlig väg att pröva, men den är inte verifierad på denna TV.
 - Tizen-TV-appar ritas i **1920 × 1080 logiska pixlar** och skalas upp av TV:n även på en 4K-panel. Logotyperna är högupplösta PNG-filer; appen kan inte ändra TV:ns systemupplösning.
 
